@@ -112,7 +112,7 @@ defmodule CodeAgentExTools.PythonTools do
           IO.inspect(decoded_result)
 
           case decoded_result do
-            {"ok_with_image", base64_data, result_text} ->
+            {"ok_with_image", _base64_data, result_text} ->
               Logger.info("[PythonTools] Execution successful with image")
 
               # TODO: Save image and return {:image, path} tuple

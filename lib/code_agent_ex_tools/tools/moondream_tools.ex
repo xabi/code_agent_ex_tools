@@ -28,10 +28,10 @@ defmodule CodeAgentExTools.MoondreamTools do
 
     case read_image_as_base64(image_path) do
       {:ok, image_base64} ->
-        with {:ok, client} <- CodeAgentEx.MoondreamApi.new(),
+        with {:ok, client} <- CodeAgentExTools.MoondreamApi.new(),
              {:ok, image_binary} <- Base.decode64(image_base64),
-             {:ok, image_url} <- CodeAgentEx.MoondreamApi.binary_to_image_url(image_binary),
-             {:ok, result} <- CodeAgentEx.MoondreamApi.caption(client, image_url, length: length) do
+             {:ok, image_url} <- CodeAgentExTools.MoondreamApi.binary_to_image_url(image_binary),
+             {:ok, result} <- CodeAgentExTools.MoondreamApi.caption(client, image_url, length: length) do
           caption = Map.get(result, "caption", "No caption generated")
           Logger.info("[MoondreamTools] ✅ Caption generated")
           "Caption: #{caption}"
@@ -70,10 +70,10 @@ defmodule CodeAgentExTools.MoondreamTools do
 
     case read_image_as_base64(image_path) do
       {:ok, image_base64} ->
-        with {:ok, client} <- CodeAgentEx.MoondreamApi.new(),
+        with {:ok, client} <- CodeAgentExTools.MoondreamApi.new(),
              {:ok, image_binary} <- Base.decode64(image_base64),
-             {:ok, image_url} <- CodeAgentEx.MoondreamApi.binary_to_image_url(image_binary),
-             {:ok, result} <- CodeAgentEx.MoondreamApi.query(client, image_url, question) do
+             {:ok, image_url} <- CodeAgentExTools.MoondreamApi.binary_to_image_url(image_binary),
+             {:ok, result} <- CodeAgentExTools.MoondreamApi.query(client, image_url, question) do
           answer = Map.get(result, "answer", "No answer available")
           Logger.info("[MoondreamTools] ✅ Query answered")
           "Question: #{question}\nAnswer: #{answer}"
@@ -95,7 +95,7 @@ defmodule CodeAgentExTools.MoondreamTools do
   """
   def detect do
     %{
-      name: "moondream_detect",
+      name: :moondream_detect,
       description: "Detects and locates specific objects in an image with bounding boxes. Call with: tools.moondream_detect.(image_path, object)",
       inputs: %{
         "image_path" => %{type: "string", description: "Path to the image file"},
@@ -112,10 +112,10 @@ defmodule CodeAgentExTools.MoondreamTools do
 
     case read_image_as_base64(image_path) do
       {:ok, image_base64} ->
-        with {:ok, client} <- CodeAgentEx.MoondreamApi.new(),
+        with {:ok, client} <- CodeAgentExTools.MoondreamApi.new(),
              {:ok, image_binary} <- Base.decode64(image_base64),
-             {:ok, image_url} <- CodeAgentEx.MoondreamApi.binary_to_image_url(image_binary),
-             {:ok, result} <- CodeAgentEx.MoondreamApi.detect(client, image_url, object) do
+             {:ok, image_url} <- CodeAgentExTools.MoondreamApi.binary_to_image_url(image_binary),
+             {:ok, result} <- CodeAgentExTools.MoondreamApi.detect(client, image_url, object) do
           objects = Map.get(result, "objects", [])
           Logger.info("[MoondreamTools] ✅ Detect completed - #{length(objects)} object(s) found")
 
@@ -154,7 +154,7 @@ defmodule CodeAgentExTools.MoondreamTools do
   """
   def point do
     %{
-      name: "moondream_point",
+      name: :moondream_point,
       description: "Locates a specific point of interest in an image (returns x, y coordinates). Call with: tools.moondream_point.(image_path, object)",
       inputs: %{
         "image_path" => %{type: "string", description: "Path to the image file"},
@@ -171,10 +171,10 @@ defmodule CodeAgentExTools.MoondreamTools do
 
     case read_image_as_base64(image_path) do
       {:ok, image_base64} ->
-        with {:ok, client} <- CodeAgentEx.MoondreamApi.new(),
+        with {:ok, client} <- CodeAgentExTools.MoondreamApi.new(),
              {:ok, image_binary} <- Base.decode64(image_base64),
-             {:ok, image_url} <- CodeAgentEx.MoondreamApi.binary_to_image_url(image_binary),
-             {:ok, result} <- CodeAgentEx.MoondreamApi.point(client, image_url, object) do
+             {:ok, image_url} <- CodeAgentExTools.MoondreamApi.binary_to_image_url(image_binary),
+             {:ok, result} <- CodeAgentExTools.MoondreamApi.point(client, image_url, object) do
           points = Map.get(result, "points", [])
           Logger.info("[MoondreamTools] ✅ Point completed - #{length(points)} point(s) found")
 

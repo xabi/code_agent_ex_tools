@@ -77,8 +77,11 @@ defmodule CodeAgentExTools.MoondreamApi do
   def new(api_key \\ nil) do
     Logger.debug("[MoondreamApi] 🔑 Initialisation du client Moondream")
 
+    # Si aucune clé fournie, essayer de la récupérer de l'environnement
+    api_key = api_key || System.get_env("MOONDREAM_API_KEY")
+
     if is_nil(api_key) or api_key == "" do
-      Logger.error("[MoondreamApi] ❌ Clé API Moondream manquante")
+      Logger.error("[MoondreamApi] ❌ Clé API Moondream manquante (MOONDREAM_API_KEY)")
       {:error, :missing_api_key}
     else
       key_preview = String.slice(api_key, 0, 20)

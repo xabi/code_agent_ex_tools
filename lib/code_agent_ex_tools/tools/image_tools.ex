@@ -299,7 +299,7 @@ defmodule CodeAgentExTools.ImageTools do
   """
   def download_image do
     %{
-      name: "download_image",
+      name: :download_image,
       description:
         "Downloads an image from a URL and saves it locally. Returns {:image, path}. Call with: tools.download_image.(url)",
       inputs: %{
@@ -353,7 +353,7 @@ defmodule CodeAgentExTools.ImageTools do
   """
   def load_image do
     %{
-      name: "load_image",
+      name: :load_image,
       description:
         "Loads an image from a local file path. Returns {:image, path}. Call with: tools.load_image.(path)",
       inputs: %{
@@ -377,31 +377,32 @@ defmodule CodeAgentExTools.ImageTools do
   end
 
   @doc """
-  Tool pour obtenir les informations d'une image.
+  Tool pour obtenir les métadonnées techniques d'une image (format, taille).
+  Note: Pour obtenir une DESCRIPTION du CONTENU de l'image, utilisez moondream_caption ou moondream_query.
   """
-  def image_info do
+  def image_metadata do
     %{
-      name: "image_info",
+      name: :image_metadata,
       description:
-        "Returns information about an image (format, size). Call with: tools.image_info.(image_path)",
+        "Returns technical metadata about an image file (format, size in KB). Does NOT describe image content. For content description, use moondream_caption. Call with: tools.image_metadata.(image_path)",
       inputs: %{
         "image_path" => %{type: "string", description: "Path to the image file"}
       },
       output_type: "string",
-      function: &do_image_info/1
+      function: &do_image_metadata/1
     }
   end
 
-  defp do_image_info(path) do
+  defp do_image_metadata(path) do
     if File.exists?(path) do
       case File.stat(path) do
         {:ok, stat} ->
           format = Path.extname(path) |> String.trim_leading(".")
           size_kb = Float.round(stat.size / 1024, 2)
-          "Image: #{Path.basename(path)}, Format: #{format}, Size: #{size_kb} KB"
+          "Image metadata: #{Path.basename(path)}, Format: #{format}, Size: #{size_kb} KB"
 
         {:error, reason} ->
-          "Error getting image info: #{reason}"
+          "Error getting image metadata: #{reason}"
       end
     else
       "Error: File not found at #{path}"
@@ -413,7 +414,7 @@ defmodule CodeAgentExTools.ImageTools do
   """
   def save_image do
     %{
-      name: "save_image",
+      name: :save_image,
       description:
         "Saves an image to a specific location. Call with: tools.save_image.(source_path, destination_path)",
       inputs: %{
@@ -443,7 +444,7 @@ defmodule CodeAgentExTools.ImageTools do
       text_to_video(opts),
       download_image(),
       load_image(),
-      image_info(),
+      image_metadata(),
       save_image(),
     ]
   end
