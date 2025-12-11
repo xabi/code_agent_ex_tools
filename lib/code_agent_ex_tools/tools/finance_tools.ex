@@ -18,6 +18,7 @@ defmodule CodeAgentExTools.FinanceTools do
         "ticker" => %{type: "string", description: "Stock ticker symbol (e.g., 'AAPL', 'GOOGL', 'TSLA')"}
       },
       output_type: "string",
+      safety: :safe,
       function: &do_stock_price/1
     }
   end

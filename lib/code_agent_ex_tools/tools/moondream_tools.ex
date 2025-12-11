@@ -18,6 +18,7 @@ defmodule CodeAgentExTools.MoondreamTools do
         "image_path" => %{type: "string", description: "Path to the image file"}
       },
       output_type: "string",
+      safety: :safe,
       function: fn image_path -> do_caption(image_path, "normal") end
     }
   end
@@ -60,6 +61,7 @@ defmodule CodeAgentExTools.MoondreamTools do
         "question" => %{type: "string", description: "Question to ask about the image"}
       },
       output_type: "string",
+      safety: :safe,
       function: &do_query/2
     }
   end
@@ -102,6 +104,7 @@ defmodule CodeAgentExTools.MoondreamTools do
         "object" => %{type: "string", description: "Object to detect (e.g., 'person', 'car', 'dog')"}
       },
       output_type: "string",
+      safety: :safe,
       function: &do_detect/2
     }
   end
@@ -161,6 +164,7 @@ defmodule CodeAgentExTools.MoondreamTools do
         "object" => %{type: "string", description: "Element to locate (e.g., 'face', 'text', 'logo')"}
       },
       output_type: "string",
+      safety: :safe,
       function: &do_point/2
     }
   end

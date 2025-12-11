@@ -61,6 +61,7 @@ defmodule CodeAgentExTools.PythonTools do
         }
       },
       output_type: "string",
+      safety: :unsafe,
       function: fn code ->
         code = normalize_arg(code)
         execute_python(code, allowed_imports)

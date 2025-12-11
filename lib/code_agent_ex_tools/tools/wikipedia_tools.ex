@@ -16,6 +16,7 @@ defmodule CodeAgentExTools.WikipediaTools do
         "query" => %{type: "string", description: "Search term to find on Wikipedia"}
       },
       output_type: "string",
+      safety: :safe,
       function: &do_wikipedia_search/1
     }
   end
@@ -75,6 +76,7 @@ defmodule CodeAgentExTools.WikipediaTools do
         "title" => %{type: "string", description: "Exact title of the Wikipedia page to read"}
       },
       output_type: "string",
+      safety: :safe,
       function: &do_wikipedia_page/1
     }
   end

@@ -43,6 +43,7 @@ defmodule CodeAgentExTools.ImageTools do
         "prompt" => %{type: "string", description: "Text description of the video to generate"}
       },
       output_type: "tuple",
+      safety: :unsafe,
       function: fn prompt ->
         do_text_to_video_single_arg(prompt, model)
       end
@@ -180,6 +181,7 @@ defmodule CodeAgentExTools.ImageTools do
         "prompt" => %{type: "string", description: "Text description of the image to generate"}
       },
       output_type: "tuple",
+      safety: :unsafe,
       function: fn prompt ->
         do_text_to_image_single_arg(prompt, model)
       end
@@ -306,6 +308,7 @@ defmodule CodeAgentExTools.ImageTools do
         "url" => %{type: "string", description: "URL of the image to download"}
       },
       output_type: "tuple",
+      safety: :safe,
       function: &do_download_image/1
     }
   end
@@ -360,6 +363,7 @@ defmodule CodeAgentExTools.ImageTools do
         "path" => %{type: "string", description: "Local file path of the image"}
       },
       output_type: "tuple",
+      safety: :safe,
       function: &do_load_image/1
     }
   end
@@ -388,6 +392,7 @@ defmodule CodeAgentExTools.ImageTools do
       inputs: %{
         "image_path" => %{type: "string", description: "Path to the image file"}
       },
+      safety: :safe,
       output_type: "string",
       function: &do_image_metadata/1
     }
@@ -421,6 +426,7 @@ defmodule CodeAgentExTools.ImageTools do
         "source_path" => %{type: "string", description: "Path to the source image"},
         "destination_path" => %{type: "string", description: "Path where to save the image"}
       },
+      safety: :unsafe,
       output_type: "string",
       function: fn source_path, dest_path ->
         do_save_image(source_path, dest_path)
