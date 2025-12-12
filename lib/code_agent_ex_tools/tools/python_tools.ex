@@ -41,9 +41,14 @@ defmodule CodeAgentExTools.PythonTools do
   ## Options
 
   - `:allowed_imports` - List of allowed Python modules (nil = all allowed)
+  - `:output_dir` - Directory where generated files should be saved (default: "/tmp/code_agent")
   """
   def python_interpreter(opts \\ []) do
     allowed_imports = Keyword.get(opts, :allowed_imports)
+    output_dir = Keyword.get(opts, :output_dir, "/tmp/code_agent")
+
+    # Ensure output directory exists
+    File.mkdir_p!(output_dir)
 
     %{
       name: :python_interpreter,
@@ -51,7 +56,17 @@ defmodule CodeAgentExTools.PythonTools do
       Execute Python code and return the result.
       IMPORTANT: Set a 'result' variable with the value to return. Do NOT use print().
       Example: result = 2 + 2  # returns "4"
-      For matplotlib plots, also set 'image_base64' with the base64 PNG data.
+
+      For matplotlib plots or image/video/audio generation:
+      - Use OUTPUT_DIR variable to save files (automatically set to '#{output_dir}')
+      - Set 'result' to a tuple: ("image", path) or ("video", path) or ("audio", path)
+      - Example:
+        import matplotlib.pyplot as plt
+        import os
+        plt.plot([1,2,3])
+        path = os.path.join(OUTPUT_DIR, 'plot.png')
+        plt.savefig(path)
+        result = ("image", path)  # This will display the image
       """,
       inputs: %{
         "code" => %{
@@ -64,7 +79,7 @@ defmodule CodeAgentExTools.PythonTools do
       safety: :unsafe,
       function: fn code ->
         code = normalize_arg(code)
-        execute_python(code, allowed_imports)
+        execute_python(code, allowed_imports, output_dir)
       end
     }
   end
@@ -77,7 +92,7 @@ defmodule CodeAgentExTools.PythonTools do
   end
 
   # Execute Python code
-  defp execute_python(code, allowed_imports) do
+  defp execute_python(code, allowed_imports, output_dir) do
     Logger.info("[PythonTools] Executing Python code (#{String.length(code)} chars)")
 
     case validate_imports(code, allowed_imports) do
@@ -88,18 +103,20 @@ defmodule CodeAgentExTools.PythonTools do
             code |> String.split("\n") |> Enum.map(&("    " <> &1)) |> Enum.join("\n")
 
           wrapped_code = """
+          import os
+          # Set OUTPUT_DIR environment variable for user code
+          OUTPUT_DIR = '#{output_dir}'
+          os.environ['OUTPUT_DIR'] = OUTPUT_DIR
+
           try:
               # User code
           #{indented_code}
 
-              # Check for image
-              if 'image_base64' in globals():
-                  output = ("ok_with_image", image_base64, str(globals().get('result', 'Computation completed')))
+              # Return result (can be a tuple like ("image", path) or a simple value)
+              if 'result' in globals():
+                  output = ("ok", result)
               else:
-                  if 'result' in globals():
-                      output = ("ok", str(result))
-                  else:
-                      output = ("ok", "Execution completed successfully")
+                  output = ("ok", "Execution completed successfully")
           except Exception as e:
               import traceback
               error_details = traceback.format_exc()
@@ -110,19 +127,24 @@ defmodule CodeAgentExTools.PythonTools do
 
           {result, _globals} = Pythonx.eval(wrapped_code, %{})
           decoded_result = Pythonx.decode(result)
-          IO.inspect(decoded_result)
 
           case decoded_result do
-            {"ok_with_image", _base64_data, result_text} ->
-              Logger.info("[PythonTools] Execution successful with image")
+            {"ok", {"image", path}} ->
+              Logger.info("[PythonTools] Execution successful with image: #{path}")
+              # Return tuple that LLMFormattable can detect as an image
+              {:image, path}
 
-              # TODO: Save image and return {:image, path} tuple
-              # For now, just return the text result
-              "#{result_text}\n\n(Image generated but AgentImage type not yet implemented)"
+            {"ok", {"video", path}} ->
+              Logger.info("[PythonTools] Execution successful with video: #{path}")
+              {:video, path}
+
+            {"ok", {"audio", path}} ->
+              Logger.info("[PythonTools] Execution successful with audio: #{path}")
+              {:audio, path}
 
             {"ok", message} ->
               Logger.info("[PythonTools] Execution successful")
-              message
+              to_string(message)
 
             {"error", error_msg} ->
               Logger.error("[PythonTools] Python error: #{error_msg}")
@@ -152,6 +174,7 @@ defmodule CodeAgentExTools.PythonTools do
       List.to_string(arg)
     end
   end
+
   defp normalize_arg(arg) when is_map(arg), do: Map.get(arg, "code", "")
   defp normalize_arg(arg), do: arg
 
